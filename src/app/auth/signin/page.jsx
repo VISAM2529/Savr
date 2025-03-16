@@ -1,8 +1,13 @@
 "use client";
 
-import { signIn } from "next-auth/react";
-
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 export default function SignIn() {
+  const {data:session} = useSession()
+  const router = useRouter()
+  if(session){
+    router.push("/")
+  }
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <h1 className="text-2xl font-bold mb-4">Sign In</h1>
