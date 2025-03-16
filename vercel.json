@@ -1,9 +1,0 @@
-{
-    "crons": [
-      {
-        "path": "/api/track-product",
-        "schedule": "0 * * * *"
-      }
-    ]
-  }
-  
