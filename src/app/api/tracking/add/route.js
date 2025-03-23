@@ -9,6 +9,7 @@ import chromium from '@sparticuz/chromium-min';
 import puppeteer from 'puppeteer';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import { initPuppeteer } from "@/lib/puppeteerScraper";
+import { getBrowser } from "@/lib/chromium";
 
 const userAgents = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
@@ -58,7 +59,9 @@ const siteSpecificSelectors = {
 };
 
 async function fetchProductDetails(productUrl) {
-  const browser = await initPuppeteer();
+  browser = await getBrowser();
+  console.log("Browser initialized successfully");
+  
   const page = await browser.newPage();
   await page.setUserAgent(userAgents[Math.floor(Math.random() * userAgents.length)]);
   

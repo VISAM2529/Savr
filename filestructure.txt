@@ -74,6 +74,7 @@
         |-- useNotification.js
         |-- usePriceTracker.js
     |-- lib
+        |-- chromium.js
         |-- dbConnect.js
         |-- mongodb.js
         |-- puppeteerScraper.js
