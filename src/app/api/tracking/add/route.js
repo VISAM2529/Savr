@@ -5,7 +5,8 @@ import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import Product from "@/models/Product";
 import Tracking from "@/models/Tracking";
-import puppeteer from 'puppeteer-extra';
+import chromium from '@sparticuz/chromium-min';
+import puppeteer from 'puppeteer';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 const userAgents = [
@@ -55,13 +56,25 @@ const siteSpecificSelectors = {
   ]
 };
 
-// ... (previous code remains the same)
-
 async function fetchProductDetails(productUrl) {
-  const browser = await puppeteer.launch({ 
+  // Initialize puppeteer with chromium-min for serverless environments
+  let browser;
+if (process.env.NODE_ENV === "production") {
+  // Vercel environment
+  const chromium = require('@sparticuz/chromium-min');
+  browser = await puppeteer.launch({
+    args: chromium.args,
+    executablePath: await chromium.executablePath(),
+    headless: chromium.headless,
+  });
+} else {
+  // Local environment
+  browser = await puppeteer.launch({ 
     headless: "new",
     args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
+}
+  
   const page = await browser.newPage();
   await page.setUserAgent(userAgents[Math.floor(Math.random() * userAgents.length)]);
   
@@ -70,10 +83,11 @@ async function fetchProductDetails(productUrl) {
 
   try {
     console.log(`🔍 Fetching product from: ${productUrl}`);
-    await page.goto(productUrl, { waitUntil: "networkidle2", timeout: 30000 });
+    // Set a shorter timeout for serverless environment
+    await page.goto(productUrl, { waitUntil: "domcontentloaded", timeout: 15000 });
 
-    // Scroll to trigger lazy loading
-    await page.evaluate(async () => {
+     // Scroll to trigger lazy loading
+     await page.evaluate(async () => {
       await new Promise((resolve) => {
         let totalHeight = 0;
         const distance = window.innerHeight / 2; // Adjust dynamically
@@ -157,8 +171,8 @@ async function fetchProductDetails(productUrl) {
     await browser.close();
   }
 }
-// ... (rest of the code remains the same)
 
+// POST function remains the same
 export async function POST(req) {
   try {
     await dbConnect();
