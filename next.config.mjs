@@ -1,4 +1,15 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  images: {
+    domains: ['rukmini1.flixcart.com'], // Add the hostname here
+  },
 
-export default nextConfig;
+    webpack: (config) => {
+      config.externals = [...(config.externals || []), 'merge-deep', 'clone-deep'];
+  
+      return config;
+    },
+  };
+  
+  export default nextConfig;
+  
