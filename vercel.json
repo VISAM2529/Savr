@@ -1,8 +1,13 @@
 {
   "functions": {
-    "api/*.js": {
-      "memory": 1024,
-      "maxDuration": 10
+    "src/app/api/**/route.js": {
+      "runtime": "nodejs18.x"
     }
-  }
+  },
+  "builds": [
+    {
+      "src": "next.config.mjs",
+      "use": "@vercel/next"
+    }
+  ]
 }
