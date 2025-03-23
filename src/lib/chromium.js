@@ -4,7 +4,7 @@ import puppeteer from 'puppeteer-core';
 export async function getOptions() {
   return {
     args: chromium.args,
-    executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || await chromium.executablePath(),
+    executablePath: await chromium.executablePath() || '/usr/bin/chromium',
     headless: true
   };
 }
