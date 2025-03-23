@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "node -e \"process.env.NODE_ENV === 'production' && process.exit(0) || npx playwright install chromium\"",
+   "vercel-build": "npm run install-playwright && npm run build",
+  "install-playwright": "npx playwright install",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -36,5 +37,9 @@
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5"
-  }
+  },
+  "engines": {
+  "node": "16.x"
+}
+
 }
