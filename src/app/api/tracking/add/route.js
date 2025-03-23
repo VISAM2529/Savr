@@ -6,6 +6,10 @@ import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import Product from "@/models/Product";
 import Tracking from "@/models/Tracking";
+import chromium from "chrome-aws-lambda";
+import puppeteer from "puppeteer-core";
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+
 const userAgents = [
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/91.0.864.59',
@@ -17,32 +21,70 @@ const userAgents = [
   'Mozilla/5.0 (iPad; CPU OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1',
 ];
 
-async function fetchProductDetails(productUrl, retryCount = 0) {
+async function fetchProductDetails(productUrl) {
+  let browser;
+  browser = await puppeteer.launch({
+    args: chromium.args,
+    executablePath: await chromium.executablePath || process.env.PUPPETEER_EXECUTABLE_PATH,
+    headless: true,
+    defaultViewport: { width: 1280, height: 800 },
+  });
+  const page = await browser.newPage();
+  await page.setUserAgent(userAgents[Math.floor(Math.random() * userAgents.length)]);
+  
+  // Set viewport for better rendering
+  await page.setViewport({ width: 1280, height: 800 });
+
   try {
-    const randomUserAgent = userAgents[Math.floor(Math.random() * userAgents.length)];
+    console.log(`🔍 Fetching product from: ${productUrl}`);
+    await page.goto(productUrl, { waitUntil: "networkidle2", timeout: 30000 });
 
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 3000 + 2000)); // Delay between 2 to 5 seconds.
-
-    const { data } = await axios.get(productUrl, {
-      headers: {
-        'User-Agent': randomUserAgent,
-      },
+    // Scroll to trigger lazy loading
+    await page.evaluate(async () => {
+      await new Promise((resolve) => {
+        let totalHeight = 0;
+        const distance = window.innerHeight / 2; // Adjust dynamically
+        const timer = setInterval(() => {
+          window.scrollBy(0, distance);
+          totalHeight += distance;
+          if (totalHeight >= document.body.scrollHeight) {
+            clearInterval(timer);
+            resolve();
+          }
+        }, 300);
+      });
     });
 
-    const $ = cheerio.load(data);
-
-    // Log the HTML to check the structure
-    console.log($.html()); // This logs the full HTML page, so you can verify if the selectors are correct.
-
-    // Scraping for product name, category, and price
-    let name = $('meta[property="og:title"]').attr('content') || $('h1').text().trim();
-    if (!name) {
-      console.error("Product name not found.");
-    }
+    // Wait for essential elements with longer timeout
+    await page.waitForSelector("h1, meta[property='og:title']", { timeout: 10000 }).catch(() => {
+      console.log("⚠️ Title element not found within timeout");
+    });
     
-    let category = $('meta[property="og:type"]').attr('content') || $('a[data-category]').text().trim();
-    if (!category) {
-      console.error("Product category not found.");
+    // Use delay instead of waitForTimeout
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    // Extract the discounted price using the correct selector
+    const discountedPrice = await page.evaluate(() => {
+      // Target the discounted price element
+      const discountedPriceElement = document.querySelector('.GURu5w._5V8g3p');
+      if (discountedPriceElement) {
+        const priceText = discountedPriceElement.innerText || discountedPriceElement.textContent;
+        if (priceText) {
+          // Extract the numeric value from the price text
+          const match = priceText.match(/₹\s*([0-9,]+)/);
+          if (match && match[1]) {
+            const cleanNumber = match[1].replace(/,/g, '');
+            return parseFloat(cleanNumber);
+          }
+        }
+      }
+      return null;
+    });
+
+    if (discountedPrice) {
+      console.log(`✅ Found discounted price: ₹${discountedPrice}`);
+    } else {
+      console.log("⚠️ Discounted price not found");
     }
 
     let price = $('meta[property="product:price:amount"]').attr('content') || $('span.price').text().trim();
