@@ -5,7 +5,8 @@ import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import Product from "@/models/Product";
 import Tracking from "@/models/Tracking";
-import puppeteer from 'puppeteer-extra';
+import chromium from "chrome-aws-lambda";
+import puppeteer from "puppeteer-core";
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 const userAgents = [
@@ -58,9 +59,12 @@ const siteSpecificSelectors = {
 // ... (previous code remains the same)
 
 async function fetchProductDetails(productUrl) {
-  const browser = await puppeteer.launch({ 
-    headless: "new",
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  let browser;
+  browser = await puppeteer.launch({
+    args: chromium.args,
+    executablePath: await chromium.executablePath || process.env.PUPPETEER_EXECUTABLE_PATH,
+    headless: true,
+    defaultViewport: { width: 1280, height: 800 },
   });
   const page = await browser.newPage();
   await page.setUserAgent(userAgents[Math.floor(Math.random() * userAgents.length)]);
