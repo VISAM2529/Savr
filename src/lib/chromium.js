@@ -1,10 +1,5 @@
-// Instead of importing at the module level
-// import { chromium } from 'playwright-chromium';
-
-export async function getBrowser() {
-  // Dynamically import only when the function is called
-  const { chromium } = await import('playwright-chromium');
-  
+import { chromium } from "playwright-chromium";
+export const getBrowser = async () => {
   const browser = await chromium.launch({
     args: [
       "--no-sandbox",
@@ -16,4 +11,4 @@ export async function getBrowser() {
     ],
   });
   return browser;
-}
+};

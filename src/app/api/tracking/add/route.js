@@ -5,9 +5,7 @@ import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import Product from "@/models/Product";
 import Tracking from "@/models/Tracking";
-import chromium from '@sparticuz/chromium-min';
-import puppeteer from 'puppeteer';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+import { getBrowser } from "@/lib/chromium";
 
 const userAgents = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
@@ -55,28 +53,16 @@ const siteSpecificSelectors = {
     'p[class*="price"]:not([class*="range"])'
   ]
 };
-
+let browser
 async function fetchProductDetails(productUrl) {
-  // Initialize puppeteer with chromium-min for serverless environments
-  let browser;
-if (process.env.NODE_ENV === "production") {
-  // Vercel environment
-  const chromium = require('@sparticuz/chromium-min');
-  browser = await puppeteer.launch({
-    args: chromium.args,
-    executablePath: await chromium.executablePath(),
-    headless: chromium.headless,
-  });
-} else {
-  // Local environment
-  browser = await puppeteer.launch({ 
-    headless: "new",
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
-}
+  browser = await getBrowser();
+  console.log("Browser initialized successfully");
   
-  const page = await browser.newPage();
-  await page.setUserAgent(userAgents[Math.floor(Math.random() * userAgents.length)]);
+  const context = await browser.newContext({
+    userAgent: userAgents[Math.floor(Math.random() * userAgents.length)]
+  });
+  const page = await context.newPage();
+
   
   // Set viewport for better rendering
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -84,10 +70,11 @@ if (process.env.NODE_ENV === "production") {
 
   try {
     console.log(`🔍 Fetching product from: ${productUrl}`);
-    await page.goto(productUrl, { waitUntil: "networkidle2", timeout: 30000 });
+    // Set a shorter timeout for serverless environment
+    await page.goto(productUrl, { waitUntil: "domcontentloaded", timeout: 15000 });
 
-    // Scroll to trigger lazy loading
-    await page.evaluate(async () => {
+     // Scroll to trigger lazy loading
+     await page.evaluate(async () => {
       await new Promise((resolve) => {
         let totalHeight = 0;
         const distance = window.innerHeight / 2; // Adjust dynamically
@@ -171,8 +158,8 @@ if (process.env.NODE_ENV === "production") {
     await browser.close();
   }
 }
-// ... (rest of the code remains the same)
 
+// POST function remains the same
 export async function POST(req) {
   try {
     await dbConnect();

@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ['playwright-chromium'],
+  serverExternalPackages: ['playwright-core'],
+  experimental: {
+    serverComponentsExternalPackages: ['@sparticuz/chromium-min', 'puppeteer-core'],
+  },
   env: {
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true',
   },
