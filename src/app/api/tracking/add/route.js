@@ -5,10 +5,6 @@ import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import Product from "@/models/Product";
 import Tracking from "@/models/Tracking";
-import chromium from '@sparticuz/chromium-min';
-import puppeteer from 'puppeteer';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-import { initPuppeteer } from "@/lib/puppeteerScraper";
 import { getBrowser } from "@/lib/chromium";
 
 const userAgents = [
