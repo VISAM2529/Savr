@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ['playwright-core'],
+  serverExternalPackages: ['playwright-chromium'],
   env: {
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true',
   },

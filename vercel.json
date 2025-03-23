@@ -1,6 +1,8 @@
 {
     "functions": {
       "src/app/api/**/route.js": {
+        "includeFiles": [],
+      "excludeFiles": ["**/node_modules/playwright-chromium/**/*"],
         "runtime": "@vercel/playwright@1.0.0", 
         "memory": 1024,
         "maxDuration": 30

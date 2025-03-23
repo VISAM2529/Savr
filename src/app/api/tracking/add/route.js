@@ -5,7 +5,6 @@ import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import Product from "@/models/Product";
 import Tracking from "@/models/Tracking";
-import { getBrowser } from "@/lib/chromium";
 
 const userAgents = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
@@ -55,6 +54,7 @@ const siteSpecificSelectors = {
 };
 let browser
 async function fetchProductDetails(productUrl) {
+  const {getBrowser} = await import("@/lib/chromium")
   browser = await getBrowser();
   console.log("Browser initialized successfully");
   
