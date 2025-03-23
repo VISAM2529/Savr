@@ -1,0 +1,90 @@
+|-- .env.local
+|-- .gitignore
+|-- jsconfig.json
+|-- next.config.mjs
+|-- package-lock.json
+|-- package.json
+|-- postcss.config.mjs
+|-- public
+    |-- file.svg
+    |-- globe.svg
+    |-- next.svg
+    |-- vercel.svg
+    |-- window.svg
+|-- README.md
+|-- src
+    |-- app
+        |-- api
+            |-- auth
+                |-- notification
+                    |-- sendEmail
+                        |-- route.js
+                    |-- sendSMS
+                        |-- route.js
+                |-- [...nextauth]
+                    |-- route.js
+            |-- products
+                |-- [...productId]
+                    |-- route.js
+            |-- track-product
+                |-- route.js
+            |-- tracking
+                |-- add
+                    |-- route.js
+                |-- checkPrice
+                    |-- route.js
+                |-- list
+                    |-- route.js
+                |-- remove
+                    |-- [...productId]
+                        |-- route.js
+                |-- user
+                    |-- [...userId]
+                        |-- route.js
+        |-- auth
+            |-- page.jsx
+            |-- signin
+                |-- page.jsx
+        |-- dashboard
+            |-- page.jsx
+        |-- favicon.ico
+        |-- globals.css
+        |-- layout.js
+        |-- page.js
+        |-- pricing
+            |-- page.jsx
+        |-- tracks
+            |-- page.jsx
+    |-- components
+        |-- auth
+            |-- AuthButton.jsx
+        |-- layout
+            |-- Footer.jsx
+            |-- Header.jsx
+            |-- Sidebar.jsx
+        |-- tracking
+            |-- NotificationSetting.jsx
+            |-- PriceHistoryChart.jsx
+            |-- PriceInputForm.jsx
+    |-- context
+        |-- TrackingContext.js
+    |-- cronJobs
+        |-- schedule.js
+    |-- hooks
+        |-- useNotification.js
+        |-- usePriceTracker.js
+    |-- lib
+        |-- dbConnect.js
+        |-- mongodb.js
+        |-- puppeteerScraper.js
+        |-- stripePayments.js
+    |-- middleware.js
+    |-- models
+        |-- Product.js
+        |-- Tracking.js
+        |-- User.js
+    |-- utils
+        |-- fetchProductPrice.js
+        |-- priceTracker.js
+        |-- sendEmail.js
+|-- vercel.json
