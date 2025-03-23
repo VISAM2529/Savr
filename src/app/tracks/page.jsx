@@ -2,33 +2,14 @@
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Bell, Trash2, ArrowUp, ArrowDown, Loader2, AlertCircle } from "lucide-react";
-import Image from "next/image";
 
 export default function MyTracksPage() {
   const { data: session } = useSession();
   const [trackedProducts, setTrackedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [deletingProductId, setDeletingProductId] = useState(null);
+  const [deletingProductId, setDeletingProductId] = useState(null); // State for tracking deletion
 
-  // Function to fetch product details by productId
-  const fetchProductDetails = async (productId) => {
-    try {
-      const response = await fetch(`/api/products/${productId}`);
-      const data = await response.json();
-      if (response.ok) {
-        return data;
-      } else {
-        console.error("Failed to fetch product details:", data.error);
-        return null;
-      }
-    } catch (err) {
-      console.error("Error fetching product details:", err);
-      return null;
-    }
-  };
-
-  // Fetch tracked products and their details
   useEffect(() => {
     const fetchTrackedProducts = async () => {
       if (!session?.user?.id) return;
@@ -39,14 +20,7 @@ export default function MyTracksPage() {
         const data = await response.json();
 
         if (response.ok) {
-          // Fetch product details for each tracked product
-          const productsWithDetails = await Promise.all(
-            data.products.map(async (product) => {
-              const productDetails = await fetchProductDetails(product.productId);
-              return { ...product, ...productDetails }; // Merge tracked product data with product details
-            })
-          );
-          setTrackedProducts(productsWithDetails);
+          setTrackedProducts(data.products);
         } else {
           setError(data.error || "Failed to fetch tracked products");
         }
@@ -62,17 +36,13 @@ export default function MyTracksPage() {
   }, [session]);
 
   const handleRemoveProduct = async (productId) => {
-    setDeletingProductId(productId);
-  
+    setDeletingProductId(productId); // Set loading state for this product
+
     try {
       const response = await fetch(`/api/tracking/remove/${productId}`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId: session.user.id }), // Passing user ID
       });
-  
+
       if (response.ok) {
         setTrackedProducts((prev) => prev.filter((product) => product.productId !== productId));
       } else {
@@ -83,10 +53,9 @@ export default function MyTracksPage() {
       console.error("Error removing product:", err);
       setError("An error occurred while removing the product");
     } finally {
-      setDeletingProductId(null);
+      setDeletingProductId(null); // Reset loading state
     }
   };
-  
 
   const getPriceChangeIndicator = (currentPrice, targetPrice) => {
     if (currentPrice === targetPrice) return null;
@@ -155,13 +124,10 @@ export default function MyTracksPage() {
             {trackedProducts.map((product) => (
               <div key={product.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow duration-300">
                 <div className="relative">
-                  <Image
-                    width={1920}
-                    height={1080}
-                    
+                  <img
                     src={product.imageUrl || "/api/placeholder/400/200"}
                     alt={product.title}
-                    className="w-full h-48 object-contain"
+                    className="w-full h-48 object-cover"
                   />
                   {product.currentPrice < product.targetPrice && (
                     <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold uppercase px-3 py-1 rounded-full">
@@ -196,12 +162,12 @@ export default function MyTracksPage() {
                   <div className="flex justify-between items-center mt-4">
                     <div>
                       <div className="text-xs text-gray-500 mb-1">Current Price</div>
-                      <div className="text-lg font-semibold text-gray-900">Rs.{product.currentPrice?.toFixed(0)}</div>
+                      <div className="text-lg font-semibold text-gray-900">${product.currentPrice?.toFixed(2)}</div>
                     </div>
 
                     <div>
                       <div className="text-xs text-gray-500 mb-1">Target Price</div>
-                      <div className="text-lg font-semibold text-gray-900">Rs.{product.targetPrice.toFixed(0)}</div>
+                      <div className="text-lg font-semibold text-gray-900">${product.targetPrice.toFixed(2)}</div>
                     </div>
 
                     <div>

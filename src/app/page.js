@@ -11,18 +11,17 @@ export default function Home() {
   const [targetPrice, setTargetPrice] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [message, setMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // New state for loading
+  
 
+  
   const closeModal = () => {
     setShowModal(false);
     // Reset form after successful submission
     setProductUrl('');
     setTargetPrice('');
   };
-
   const { data: session } = useSession();
-  console.log(session);
-
+  console.log(session)
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -40,7 +39,6 @@ export default function Home() {
     
     console.log("Sending data:", trackingData);
     
-    setIsLoading(true); // Start loading
     try {
       const response = await fetch("/api/tracking/add", {
         method: "POST",
@@ -66,133 +64,122 @@ export default function Home() {
       console.error("API call failed:", error);
       setMessage("Failed to add product for tracking.");
       setShowModal(true);
-    } finally {
-      setIsLoading(false); // Stop loading
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 w-full">
       {/* Hero Section */}
-      <div className="w-full mx-auto px-4 sm:px-6 sm:py-24">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center p-3 bg-blue-100 rounded-full mb-6">
-              <Sparkles className="h-6 w-6 text-blue-600" />
+      <div className="w-full mx-auto px-4 sm:px-6   sm:py-24">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6   ">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center p-3 bg-blue-100 rounded-full mb-6">
+            <Sparkles className="h-6 w-6 text-blue-600" />
+          </div>
+          
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 tracking-tight">
+            Track Prices & <span className="text-blue-600">Save Money</span>
+          </h1>
+          
+          <p className="mt-6 text-xl text-gray-600 max-w-2xl mx-auto">
+            Get instant notifications when your favorite products drop in price. Never miss a deal again.
+          </p>
+          
+          {/* Enhanced Form */}
+          <div className="mt-10 max-w-xl mx-auto">
+            <form 
+              onSubmit={handleSubmit} 
+              className="bg-white p-8 shadow-lg rounded-2xl border border-gray-100"
+            >
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2 text-left">
+                    Product URL
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <input
+                        type="url"
+                        value={productUrl}
+                        onChange={(e) => setProductUrl(e.target.value)}
+                        className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                        placeholder="https://www.example.com/product"
+                        required
+                      />
+                    </div>
+                  </label>
+                </div>
+                
+                <div>
+                  <label className="block text-gray-700 font-medium mb-2 text-left">
+                    Target Price
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 sm:text-sm">Rs.</span>
+                      </div>
+                      <input
+                        type="number"
+                        value={targetPrice}
+                        onChange={(e) => setTargetPrice(e.target.value)}
+                        className="mt-1 p-3 pl-8 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                        placeholder="10000"
+                        required
+                      />
+                    </div>
+                  </label>
+                </div>
+                
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 text-white p-3 rounded-lg font-medium hover:bg-blue-700 transform hover:scale-105 transition duration-200 flex items-center justify-center"
+                >
+                  <Bell className="h-5 w-5 mr-2" />
+                  Start Tracking
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl transform transition-all animate-fade-in">
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center">
+                <div className="bg-green-100 p-2 rounded-full mr-3">
+                  <CheckCircle className="h-6 w-6 text-green-600" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Success!</h3>
+              </div>
+              <button 
+                onClick={closeModal}
+                className="bg-gray-100 rounded-full p-1 hover:bg-gray-200 transition duration-200"
+              >
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 tracking-tight">
-              Track Prices & <span className="text-blue-600">Save Money</span>
-            </h1>
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-4">
+              <p className="text-blue-700">{message}</p>
+            </div>
             
-            <p className="mt-6 text-xl text-gray-600 max-w-2xl mx-auto">
-              Get instant notifications when your favorite products drop in price. Never miss a deal again.
-            </p>
-            
-            {/* Enhanced Form */}
-            <div className="mt-10 max-w-xl mx-auto">
-              <form 
-                onSubmit={handleSubmit} 
-                className="bg-white p-8 shadow-lg rounded-2xl border border-gray-100"
+            <div className="mt-6 flex items-center justify-center gap-4">
+              <button
+                onClick={closeModal}
+                className="py-2 px-4 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200"
               >
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-gray-700 font-medium mb-2 text-left">
-                      Product URL
-                      <div className="mt-1 relative rounded-md shadow-sm">
-                        <input
-                          type="url"
-                          value={productUrl}
-                          onChange={(e) => setProductUrl(e.target.value)}
-                          className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-                          placeholder="https://www.example.com/product"
-                          required
-                        />
-                      </div>
-                    </label>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-gray-700 font-medium mb-2 text-left">
-                      Target Price
-                      <div className="mt-1 relative rounded-md shadow-sm">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <span className="text-gray-500 sm:text-sm">Rs.</span>
-                        </div>
-                        <input
-                          type="number"
-                          value={targetPrice}
-                          onChange={(e) => setTargetPrice(e.target.value)}
-                          className="mt-1 p-3 pl-8 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-                          placeholder="10000"
-                          required
-                        />
-                      </div>
-                    </label>
-                  </div>
-                  
-                  <button
-                    type="submit"
-                    disabled={isLoading} // Disable button while loading
-                    className="w-full bg-blue-600 text-white p-3 rounded-lg font-medium hover:bg-blue-700 transform hover:scale-105 transition duration-200 flex items-center justify-center"
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      </div>
-                    ) : (
-                      <>
-                        <Bell className="h-5 w-5 mr-2" />
-                        Start Tracking
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
+                Close
+              </button>
+              <button
+                onClick={closeModal}
+                className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+              >
+                Track More Products
+              </button>
             </div>
           </div>
         </div>
-        
-        {/* Modal */}
-        {showModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl transform transition-all animate-fade-in">
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center">
-                  <div className="bg-green-100 p-2 rounded-full mr-3">
-                    <CheckCircle className="h-6 w-6 text-green-600" />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900">Success!</h3>
-                </div>
-                <button 
-                  onClick={closeModal}
-                  className="bg-gray-100 rounded-full p-1 hover:bg-gray-200 transition duration-200"
-                >
-                  <X className="h-5 w-5 text-gray-500" />
-                </button>
-              </div>
-              
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-4">
-                <p className="text-blue-700">{message}</p>
-              </div>
-              
-              <div className="mt-6 flex items-center justify-center gap-4">
-                <button
-                  onClick={closeModal}
-                  className="py-2 px-4 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200"
-                >
-                  Close
-                </button>
-                <button
-                  onClick={closeModal}
-                  className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
-                >
-                  Track More Products
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+      )}
       </div>
 
       {/* Features Section */}
