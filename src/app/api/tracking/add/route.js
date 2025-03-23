@@ -5,8 +5,7 @@ import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import Product from "@/models/Product";
 import Tracking from "@/models/Tracking";
-import chromium from "chrome-aws-lambda";
-import puppeteer from "puppeteer-core";
+import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 const userAgents = [
@@ -58,35 +57,15 @@ const siteSpecificSelectors = {
 
 // ... (previous code remains the same)
 
-
-
 async function fetchProductDetails(productUrl) {
-  // Determine the executable path for Chromium
-  const isProduction = process.env.NODE_ENV === "production";
-  const executablePath = isProduction
-    ? await chromium.executablePath // Use chrome-aws-lambda for production
-    : process.platform === "win32"
-    ? "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe" // Windows path
-    : process.platform === "darwin"
-    ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" // macOS path
-    : "/usr/bin/chromium-browser"; // Linux path (e.g., Ubuntu)
-
-  if (!executablePath) {
-    throw new Error("Chromium executable not found. Please install Chromium.");
-  }
-
-  // Launch Puppeteer
-  const browser = await puppeteer.launch({
-    args: chromium.args,
-    executablePath,
-    headless: isProduction ? chromium.headless : true,
-    ignoreHTTPSErrors: true,
+  const browser = await puppeteer.launch({ 
+    headless: "new",
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
-
   const page = await browser.newPage();
-  await page.setUserAgent(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-  );
+  await page.setUserAgent(userAgents[Math.floor(Math.random() * userAgents.length)]);
+  
+  // Set viewport for better rendering
   await page.setViewport({ width: 1280, height: 800 });
 
   try {
@@ -97,7 +76,7 @@ async function fetchProductDetails(productUrl) {
     await page.evaluate(async () => {
       await new Promise((resolve) => {
         let totalHeight = 0;
-        const distance = window.innerHeight / 2;
+        const distance = window.innerHeight / 2; // Adjust dynamically
         const timer = setInterval(() => {
           window.scrollBy(0, distance);
           totalHeight += distance;
@@ -109,26 +88,39 @@ async function fetchProductDetails(productUrl) {
       });
     });
 
-    // Wait for essential elements
+    // Wait for essential elements with longer timeout
     await page.waitForSelector("h1, meta[property='og:title']", { timeout: 10000 }).catch(() => {
       console.log("⚠️ Title element not found within timeout");
     });
+    
+    // Use delay instead of waitForTimeout
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
-    // Extract product details
+    // Extract the discounted price using the correct selector
     const discountedPrice = await page.evaluate(() => {
+      // Target the discounted price element
       const discountedPriceElement = document.querySelector('.GURu5w._5V8g3p');
       if (discountedPriceElement) {
         const priceText = discountedPriceElement.innerText || discountedPriceElement.textContent;
         if (priceText) {
+          // Extract the numeric value from the price text
           const match = priceText.match(/₹\s*([0-9,]+)/);
           if (match && match[1]) {
-            return parseFloat(match[1].replace(/,/g, ''));
+            const cleanNumber = match[1].replace(/,/g, '');
+            return parseFloat(cleanNumber);
           }
         }
       }
       return null;
     });
 
+    if (discountedPrice) {
+      console.log(`✅ Found discounted price: ₹${discountedPrice}`);
+    } else {
+      console.log("⚠️ Discounted price not found");
+    }
+
+    // Get product name
     const productName = await page.evaluate(() => {
       return (
         document.querySelector("h1")?.innerText ||
@@ -138,6 +130,7 @@ async function fetchProductDetails(productUrl) {
       );
     });
 
+    // Get product image
     const imageUrl = await page.evaluate(() => {
       return (
         document.querySelector('meta[property="og:image"]')?.content ||
@@ -151,6 +144,7 @@ async function fetchProductDetails(productUrl) {
       );
     });
 
+    // Return the product details
     return {
       name: productName,
       price: discountedPrice,
