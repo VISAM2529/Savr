@@ -26,8 +26,6 @@
             |-- products
                 |-- [...productId]
                     |-- route.js
-            |-- track-product
-                |-- route.js
             |-- tracking
                 |-- add
                     |-- route.js
@@ -77,7 +75,6 @@
         |-- chromium.js
         |-- dbConnect.js
         |-- mongodb.js
-        |-- puppeteerScraper.js
         |-- stripePayments.js
     |-- middleware.js
     |-- models
