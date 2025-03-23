@@ -6,7 +6,6 @@
         "maxDuration": 30
       }
     },
-    "excludeFiles": ["**/node_modules/playwright-chromium/**"],
     "build": {
       "env": {
         "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "true",
