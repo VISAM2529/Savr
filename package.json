@@ -26,7 +26,6 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.10.0",
     "null-loader": "^4.0.1",
-    "puppeteer": "^10.4.0",
     "puppeteer-core": "^10.4.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
