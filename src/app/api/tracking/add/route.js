@@ -59,12 +59,11 @@ const siteSpecificSelectors = {
 // ... (previous code remains the same)
 
 async function fetchProductDetails(productUrl) {
-  let browser;
-  browser = await puppeteer.launch({
+  const browser = await puppeteer.launch({
     args: chromium.args,
-    executablePath: await chromium.executablePath || process.env.PUPPETEER_EXECUTABLE_PATH,
-    headless: true,
-    defaultViewport: { width: 1280, height: 800 },
+    executablePath: await chromium.executablePath || "/usr/bin/chromium",
+    headless: chromium.headless,
+    ignoreHTTPSErrors: true,
   });
   const page = await browser.newPage();
   await page.setUserAgent(userAgents[Math.floor(Math.random() * userAgents.length)]);
