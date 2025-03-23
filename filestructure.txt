@@ -29,8 +29,6 @@
             |-- tracking
                 |-- add
                     |-- route.js
-                |-- checkPrice
-                    |-- route.js
                 |-- list
                     |-- route.js
                 |-- remove
