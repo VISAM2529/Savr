@@ -2,7 +2,12 @@
     "functions": {
       "src/app/api/**/route.js": {
         "memory": 1024,
-        "maxDuration": 10
+        "maxDuration": 30
+      }
+    },
+    "build": {
+      "env": {
+        "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": "true"
       }
     }
   }
