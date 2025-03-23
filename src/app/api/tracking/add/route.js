@@ -53,16 +53,20 @@ const siteSpecificSelectors = {
     'p[class*="price"]:not([class*="range"])'
   ]
 };
-
+let browser
 async function fetchProductDetails(productUrl) {
   browser = await getBrowser();
   console.log("Browser initialized successfully");
   
-  const page = await browser.newPage();
-  await page.setUserAgent(userAgents[Math.floor(Math.random() * userAgents.length)]);
+  const context = await browser.newContext({
+    userAgent: userAgents[Math.floor(Math.random() * userAgents.length)]
+  });
+  const page = await context.newPage();
+
   
   // Set viewport for better rendering
-  await page.setViewport({ width: 1280, height: 800 });
+  await page.setViewportSize({ width: 1280, height: 800 });
+
 
   try {
     console.log(`🔍 Fetching product from: ${productUrl}`);
