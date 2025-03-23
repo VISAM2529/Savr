@@ -1,7 +1,7 @@
 {
     "functions": {
       "src/app/api/**/route.js": {
-        "runtime": "@vercel/playwright",
+        "runtime": "@vercel/playwright@1.0.0", 
         "memory": 1024,
         "maxDuration": 30
       }
