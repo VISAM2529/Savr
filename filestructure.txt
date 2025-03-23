@@ -1,5 +1,6 @@
 |-- .env.local
 |-- .gitignore
+|-- .vercelignore
 |-- jsconfig.json
 |-- next.config.mjs
 |-- package-lock.json
