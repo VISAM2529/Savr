@@ -8,7 +8,7 @@
     "test:debug": "PWDEBUG=1 playwright test",
     "playwright:install": "playwright install --with-deps chromium",
     "dev": "next dev",
-    "build": "next build",
+    "build": "npx playwright install --with-deps chromium && next build",
     "start": "next start",
     "lint": "next lint"
   },
