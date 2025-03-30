@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Bell, Sparkles, ShoppingBag, TrendingUp, CheckCircle, X } from "lucide-react";
+import { ArrowRight, Bell, Sparkles, ShoppingBag, TrendingUp, CheckCircle, X, Search, Database } from "lucide-react";
 import PriceInputForm from "@/components/tracking/PriceInputForm";
 import { useSession } from "next-auth/react";
 
@@ -11,7 +11,9 @@ export default function Home() {
   const [targetPrice, setTargetPrice] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [message, setMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // New state for loading
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
+  const [loadingProgress, setLoadingProgress] = useState(0);
 
   const closeModal = () => {
     setShowModal(false);
@@ -22,6 +24,30 @@ export default function Home() {
 
   const { data: session } = useSession();
   console.log(session);
+
+  // Loading animation effect
+  useEffect(() => {
+    let interval;
+    if (isLoading) {
+      interval = setInterval(() => {
+        setLoadingProgress(prev => {
+          // Slowly increment progress but never reach 100% until we get a response
+          const newProgress = prev < 90 ? prev + (10 - prev/10) : prev;
+          return newProgress;
+        });
+        
+        setLoadingStep(prev => {
+          // Cycle through loading steps
+          return (prev + 1) % 4;
+        });
+      }, 800);
+    } else {
+      setLoadingProgress(0);
+      setLoadingStep(0);
+    }
+    
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +66,9 @@ export default function Home() {
     
     console.log("Sending data:", trackingData);
     
-    setIsLoading(true); // Start loading
+    setIsLoading(true);
+    setLoadingStep(0);
+    
     try {
       const response = await fetch("/api/tracking/add", {
         method: "POST",
@@ -67,9 +95,25 @@ export default function Home() {
       setMessage("Failed to add product for tracking.");
       setShowModal(true);
     } finally {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false);
     }
   };
+
+  // Loading step messages
+  const loadingMessages = [
+    "Analyzing product URL...",
+    "Searching for pricing data...",
+    "Setting up price tracker...",
+    "Almost there..."
+  ];
+
+  // Loading step icons
+  const loadingIcons = [
+    <Search key="search" className="h-5 w-5 text-white" />,
+    <Database key="database" className="h-5 w-5 text-white" />,
+    <Bell key="bell" className="h-5 w-5 text-white" />,
+    <CheckCircle key="check" className="h-5 w-5 text-white" />
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 w-full ">
@@ -107,6 +151,7 @@ export default function Home() {
                           className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                           placeholder="https://www.example.com/product"
                           required
+                          disabled={isLoading}
                         />
                       </div>
                     </label>
@@ -126,6 +171,7 @@ export default function Home() {
                           className="mt-1 p-3 pl-8 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                           placeholder="10000"
                           required
+                          disabled={isLoading}
                         />
                       </div>
                     </label>
@@ -133,12 +179,26 @@ export default function Home() {
                   
                   <button
                     type="submit"
-                    disabled={isLoading} // Disable button while loading
+                    disabled={isLoading}
                     className="w-full bg-blue-600 text-white p-3 rounded-lg font-medium hover:bg-blue-700 transform hover:scale-105 transition duration-200 flex items-center justify-center"
                   >
                     {isLoading ? (
-                      <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <div className="w-full">
+                        {/* Progress Bar */}
+                        <div className="h-1 w-full bg-blue-200 rounded-full mb-2">
+                          <div 
+                            className="h-1 bg-white rounded-full transition-all duration-300" 
+                            style={{ width: `${loadingProgress}%` }}
+                          />
+                        </div>
+                        
+                        {/* Loading Message */}
+                        <div className="flex items-center justify-center gap-2 text-sm">
+                          <span className="inline-block">
+                            {loadingIcons[loadingStep]}
+                          </span>
+                          <span>{loadingMessages[loadingStep]}</span>
+                        </div>
                       </div>
                     ) : (
                       <>

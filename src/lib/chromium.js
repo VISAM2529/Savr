@@ -1,14 +1,7 @@
-import { chromium } from "playwright-chromium";
-export const getBrowser = async () => {
-  const browser = await chromium.launch({
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-gpu",
-      "--single-process",
-      "--disable-dev-shm-usage",
-      "--headless", // Required for Vercel
-    ],
+import { chromium } from "playwright";
+export async function getBrowser() {
+  return await chromium.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'], // Recommended for serverless environments
   });
-  return browser;
-};
+}

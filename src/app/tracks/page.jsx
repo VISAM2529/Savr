@@ -87,7 +87,6 @@ export default function MyTracksPage() {
     }
   };
   
-
   const getPriceChangeIndicator = (currentPrice, targetPrice) => {
     if (currentPrice === targetPrice) return null;
 
@@ -124,20 +123,20 @@ export default function MyTracksPage() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex items-center justify-between mb-8">
+    <div className="bg-gray-50 min-h-screen w-full">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 w-full">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 w-full">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Tracked Products</h1>
-            <p className="mt-2 text-gray-600">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">My Tracked Products</h1>
+            <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-600">
               Monitoring {trackedProducts.length} product{trackedProducts.length !== 1 ? "s" : ""} for price drops
             </p>
           </div>
-          <Bell className="h-6 w-6 text-blue-600" />
+          <Bell className="h-6 w-6 text-blue-600 hidden sm:block" />
         </div>
 
         {trackedProducts.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-6 text-center">
+          <div className="bg-white rounded-lg shadow p-4 sm:p-6 text-center w-full">
             <div className="inline-flex items-center justify-center p-3 bg-blue-100 rounded-full mb-4">
               <Bell className="h-6 w-6 text-blue-600" />
             </div>
@@ -151,33 +150,32 @@ export default function MyTracksPage() {
             </a>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
             {trackedProducts.map((product) => (
-              <div key={product.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <div key={product.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow duration-300 w-full">
                 <div className="relative">
                   <Image
                     width={1920}
                     height={1080}
-                    
                     src={product.imageUrl || "/api/placeholder/400/200"}
                     alt={product.title}
-                    className="w-full h-48 object-contain"
+                    className="w-full h-40 sm:h-48 object-contain"
                   />
                   {product.currentPrice < product.targetPrice && (
-                    <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold uppercase px-3 py-1 rounded-full">
+                    <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold uppercase px-2 sm:px-3 py-1 rounded-full">
                       Price Drop!
                     </div>
                   )}
                 </div>
 
-                <div className="p-4">
+                <div className="p-3 sm:p-4">
                   <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-medium text-gray-900 line-clamp-2 mb-2" title={product.title}>
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 line-clamp-2 mb-2" title={product.title}>
                       {product.title}
                     </h3>
                     <button
                       onClick={() => handleRemoveProduct(product.productId)}
-                      className="text-gray-400 hover:text-red-500 cursor-pointer"
+                      className="text-gray-400 hover:text-red-500 cursor-pointer ml-2 flex-shrink-0"
                       title="Remove product"
                       disabled={deletingProductId === product.productId}
                     >
@@ -189,19 +187,19 @@ export default function MyTracksPage() {
                     </button>
                   </div>
 
-                  <a href={product.productUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline line-clamp-1 mb-3">
+                  <a href={product.productUrl} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm text-blue-600 hover:underline line-clamp-1 mb-2 sm:mb-3 block">
                     {new URL(product.productUrl).hostname}
                   </a>
 
-                  <div className="flex justify-between items-center mt-4">
+                  <div className="grid grid-cols-3 gap-2 mt-3 sm:mt-4">
                     <div>
                       <div className="text-xs text-gray-500 mb-1">Current Price</div>
-                      <div className="text-lg font-semibold text-gray-900">Rs.{product.currentPrice?.toFixed(0)}</div>
+                      <div className="text-base sm:text-lg font-semibold text-gray-900">Rs.{product.currentPrice?.toFixed(0)}</div>
                     </div>
 
                     <div>
                       <div className="text-xs text-gray-500 mb-1">Target Price</div>
-                      <div className="text-lg font-semibold text-gray-900">Rs.{product.targetPrice.toFixed(0)}</div>
+                      <div className="text-base sm:text-lg font-semibold text-gray-900">Rs.{product.targetPrice.toFixed(0)}</div>
                     </div>
 
                     <div>
@@ -210,7 +208,7 @@ export default function MyTracksPage() {
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-gray-100">
+                  <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100">
                     <div className="text-xs text-gray-500">Tracking since {new Date(product.createdAt).toLocaleDateString()}</div>
                   </div>
                 </div>
